@@ -1,0 +1,313 @@
+---
+title: "Untitled"
+author: "Jorge_Faieta_Dacovich - Neoland"
+date: "6/12/2020"
+output: html_document
+---
+
+# Importación de datos
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+# * read_csv() ','   lee ficheros separados por comas 
+# * read_csv2() ';' lee ficheros separado por punto y coma
+# * read_tsv() '\t'  lee ficheros separdos por tabulaciones
+# * read_delim(delim = '\n') suministramos nosotros el delimitador
+
+# * read_fwf() fixed with field, fichero de anchura fija
+  # * fwf_widths() para especificar la anchura
+  # * fwf_positions() para especificar las posiciones
+# * read_table() se utiliza cuando las columnas está separadas por un espacio en blanco
+
+# * read_log() preparado para leer ficheros de errores y problemas en un server creados por apache
+# install.packages('webreadr')
+```
+
+# Guardar un csv con el paquete base de R
+
+```{r}
+#       Guardar un csv con el paquete base de R
+
+write.csv(mtcars, file = "/Users/victoriasofia93/Desktop/r-basic-master/data/cars.csv")
+
+
+#       Leer el archivo guardado
+
+cars <- read_csv("Desktop/r-basic-master/data/cars.csv")
+
+cars %>% View() # es un tibble
+
+
+# Podemos usarlo para leer un fichero de nuestro disco o datos con formato string
+# Primera fila de datos aporta el nombre de las columnas
+read_csv("x,y,z
+         1,2,3.5
+         4,5,6
+         7,8,9")
+
+
+read_csv("Este fichero fue generado por Juan Gabriel
+         el día 30 de Mayo de 2018 para poderlo
+         usar en el curso de Tidyverse
+         x,y,z
+         1,2,3
+         4,5,6", skip = 3) # numero de lineas que me quiero saltar para que genere la tibble con el encabezado xyz
+
+
+read_csv("#Esto es un comentario
+         x,y,z
+         1,2,3
+         4,5,6", comment = "#") # indicaría el caracter que se relaciona con el comentario, localiza todas las filas que llevan  # y se las salta
+
+
+read_csv("1,2,3\n4,5,6\n7,8,9",col_names = FALSE) # indicamos que la primera fila no debe ser tratada como cabecera
+read_csv("1,2,3\n4,5,6\n7,8,9", col_names = c("primera","segunda", "tercera")) # le doy el nombre de las columnas
+read_csv("x,y,z\n1,2,.\n4,#,6", na = c(".", "#")) # podemos especificar el valor o los valores que van a ser utilizados para representar los NA de nuestro fichero
+
+```
+
+# Los parses de reader:
+
+Toman un vector de caracteres y nos devuelven uno específico del tipo de dato que nos interese
+
+```{r}
+
+# me devolvera el vector procesador pero solo con valores lógicos no de caracteres:
+str(parse_logical(c("TRUE","FALSE","FALSE","NA")))
+
+# me devolvera un vector con números enteros
+str(parse_integer(c("1","2","3","4")))
+
+# me devolverá fechas
+str(parse_date(c("1988-05-19", "2018-05-30")))
+
+# me devolverá enteros y puedo asignar que valores llevarán o se convertirán en NA
+parse_integer(c("1","2","#","5","729"), na = "#")
+
+# en este ejemplo hay enteros, caracteres..
+data <- parse_integer(c("1","2","hola","5","234", "3.141592"))
+problems(data) # con esta función obtenemos cuales han sido los problemas del procesado
+
+```
+
+# Existen 8 tipos de procesadores:
+
+```{r}
+# parse_logical() : lógicos
+# parse_integer() : número enteros
+# parse_double() : valores numéricos
+# parse_number() : es más flexible, puede procesar número escritos de diferentes formas y notaciones
+  # decimales -> . , el uso de puntos y comas
+parse_double("12.345")
+parse_double("12,345", locale = locale(decimal_mark = ","))
+  # monetarios 100€, $1000 (caracteres monetarios)
+  # porcentajes 12% 
+parse_number("100€") # lo precesa sin el ¢
+parse_number("$1000")
+parse_number("12%")
+parse_number("El vestido ha costado 12.45€") # extrae el número sin problema
+  # agrupaciones 1,000,000
+parse_number("$1,000,000")
+parse_number("1.000.000", locale = locale(grouping_mark = ".")) # IMPORTANTE
+parse_number("123'456'789", locale = locale(grouping_mark = "'")) # IMPORTANTE
+
+# parse_character() : gran utilidad en codificación de caracteres
+
+charToRaw("Juan Gabriel") #ASCII  # convierte cualquier cadena de valores a su codificación base
+
+#Latin1 (ISO-8859-1) para idiomas de Europa del este
+  #b1 -> +-
+#Latin2 (ISO-8859-2) para idiomas de Europa del Oeste
+  #b1 -> a
+
+#UTF-8
+x1 <- "El Ni\xf1o ha estado enfermo"
+x2 <- "\x82\xb1\x82\xf1\x82\xb2\x82\xcd"
+
+parse_character(x1, locale = locale(encoding = "Latin1"))
+parse_character(x2, locale = locale(encoding = "Shift-JIS"))
+
+guess_encoding(charToRaw(x1)) # nos ayuda a investigar
+# A tibble: 2 x 2
+#  encoding   confidence
+#  <chr>           <dbl>
+# 1 ISO-8859-1       0.92
+# 2 ISO-8859-2       0.34
+guess_encoding(charToRaw(x2)) 
+
+
+# parse_factor(): representa valores categóricas con valores fijos
+
+months <- c("Jan","Feb","Mar","Apr","May","Jun",
+            "Jul","Aug","Sep","Oct","Nov","Dec")
+parse_factor(c("May","Apr","Jul","Aug", "Sec","Nob"), levels = months) # hará NA aquellos caracteres que estén mal escritos
+
+
+# parse_datetime() ISO-8601
+# parse_date()
+# parse_time()
+# EPOCH -> 1970-01-01 00:00 inicio de la era moderna de la informática
+parse_datetime("2018-06-05T1845") # escribe con fecha y hora, la letra T es indicativo de que empieza la hora
+parse_datetime("20180605")
+
+parse_date("2015-12-07") # espera 4 digitos de año - mes - y día
+parse_date("2017/05/18")
+
+parse_time("03:00 pm")
+parse_time("20:00:34")
+
+# Años
+# %Y -> año con 4 dígitos
+# %y -> año con 2 dígitos (00-69) -> 2000-2069, (70-99) -> 1970-1999
+
+# Meses 
+# %m -> mes en formato de dos dígitos 01-12
+# %b -> abreviación del mes 'Ene', 'Feb',...
+# %B -> nombre completo del mes 'Enero', 'Febrero',...
+
+# Día
+# %d -> número del día con dos dígitos 01-31
+# %e -> de forma opcional, los dígitos 1-9 pueden llevar espacio en blanco
+
+# Horas
+# %H -> hora entre 0-23
+# %I -> hora entre 0-12 siempre va con %p
+# %p -> am/pm
+# %M -> minutos 0-59
+# %s -> segundos enteros 0-59
+# %OS -> segundos reales
+# %Z -> Zona horaria America/Chicago, Canada, France, Spain
+# %z -> Zona horaria con respecto a UTC +0800, +0100
+
+# No dígitos
+# %. -> eliminar un carácter no dígito
+# %* -> eliminar cualquier número de caracteres que no sean dígitos
+
+parse_date("05/08/15", format = "%d/%m/%y")
+parse_date("08/05/15", format = "%m/%d/%y")
+parse_date("01-05-2018", format = "%d-%m-%Y")
+parse_date("01 Jan 2018", format = "%d %b %Y")
+parse_date("03 March 17", format = "%d %B %y")
+parse_date("5 janvier 2012", format = "%d %B %Y", locale = locale("fr"))
+parse_date("3 Septiembre 2014", format = "%d %B %Y", locale = locale("es"))
+
+```
+# ejercicios
+
+```{r}
+v1 <- "May 19, 2018"
+parse_date(v1, "%b %d, %Y")
+
+v2 <- "2018-May-08"
+parse_date(v2, "%Y-%b-%d")
+
+v3 <- "09-Jul-2013"
+parse_date(v3, "%d-%b-%Y")
+
+v4 <- c("January 19 (2019)", "Mayo 1 (2015)")
+parse_date(v4, "%B %d (%Y)")
+v5 <- "12/31/18" # Dic 31, 2018
+parse_date(v5, "%m/%d/%y")
+v6 <- "1305"
+parse_date(v6, format = "%H%M")
+v7 <- "12:05:11.15 PM"
+parse_time(v7)
+```
+
+# Revisar que tipo de dato está almacenado en cada columna:
+
+```{r}
+
+#lógico -> integer -> double -> number 
+# -> time -> date -> datetime -> strings
+guess_parser("2018-05-03")
+guess_parser("18:59")
+guess_parser(c("3,6,8,25"))
+guess_parser(c("TRUE", "FALSE","TRUE", "F", "T"))
+guess_parser(c("3", "6", "8", "25"))
+```
+# Ejemplo
+
+```{r}
+challenge <- read_csv(readr_example("challenge.csv"))
+problems(challenge)
+
+challenge <- read_csv(
+  readr_example("challenge.csv"),
+  col_types = cols(
+    x = col_double(),#parse_double()
+    y = col_date()#parse_date()
+  )
+  )
+View(challenge)
+tail(challenge)
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+challenge2 <- read_csv(readr_example("challenge.csv"), 
+                       guess_max = 1001)
+challenge2
+
+challenge3 <- read_csv(readr_example("challenge.csv"),
+                       col_types = cols(.default = col_character())) #.default: todas por defecto serán de tipo ch
+tail(challenge3)
+type_convert(challenge3) # procesa de manera entera y convierte en doubles y dates
+
+# Ejemplo de como funciona el type_convert
+df <- tribble(
+  ~x, ~y,
+  "1", "1.2",
+  "2", "3.87", 
+  "3", "3.1415"
+)
+df # son vectores de caracteres
+
+type_convert(df) # ahora son dbl
+
+read_lines(readr_example("challenge.csv")) # leería filas
+read_file(readr_example("challenge.csv")) # leer el fichero entero (Para obtener un macro string)
+
+```
+
+
+# Escitura de ficheros : Volver estructura de R al disco
+
+```{r}
+#Escritura de ficheros
+# write_csv(), write_tsv()
+# siempre guardaremos los strings en UTF8
+# siemore guardaremos date /datetimes ISO8601
+# write_excel_csv()
+
+# Para escribir
+write_csv(challenge, path = "/Users/victoriasofia93/Desktop/r-basic-master/data/challenge.csv")
+
+# Para cargar debemos nuevamente ver el tipo de dato que hay en cada columna
+read_csv("/Users/victoriasofia93/Desktop/r-basic-master/data/challenge.csv", guess_max = 1001)
+
+
+# WRITE RDS son gestionadores uniformes, automáticos que se utilizan para almacenar datos binarios en rds que permite guardar el tipo de dato con toda la información
+
+write_rds(challenge, path = "/Users/victoriasofia93/Desktop/r-basic-master/data/challenge.rds")
+read_rds("/Users/victoriasofia93/Desktop/r-basic-master/data/challenge.rds") # soporta lista de columnas
+
+library(feather)
+write_feather(challenge, path = "/Users/victoriasofia93/Desktop/r-basic-master/data/challenge.feather")
+read_feather("/Users/victoriasofia93/Desktop/r-basic-master/data/challenge.feather")
+
+# LIBRERIAS: 
+
+# haven -> SPSS (software de estadística utilizado por psicologos y estadistas), Stata, SAS 
+# readxl -> .xml, .xmls (lee ficheros de marca de microsoft)
+# DBI + RMySQL, RSQLite, RPostgreSQL (para aaceder a base de datos, nos permite querys)
+
+# jsonlite (datos jerárquicos)
+# xml2
+
+# rio (librería rio, r input output)
+```
+

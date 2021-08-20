@@ -1,0 +1,485 @@
+---
+title: "Untitled"
+author: "JorgeF"
+date: "10/11/2020"
+output: html_document
+---
+
+```{r}
+# Cargo la libreria
+
+library(tidyverse)
+library(nycflights13)
+nycflights13::flights
+#obtenemos informacion
+?flights
+?tibble #tibble es un data frame mejorado para tidyverse
+
+```
+
+# Tipos de datos
+
+```{r}
+## * int -> números enteros
+## * dbl -> números reales (double)
+## * chr -> vector de caracteres o strings
+## * dttm -> date + time 
+## * lgl -> logical, contiene valores booleanos (T o F)
+## * fctr -> factor, variables categ
+## * date -> fecha (día, mes y año)
+```
+
+# Funciones claves
+
+```{r}
+## * filter() -> filtrar observaciones a partir de valores concretos
+## * arrange() -> reordenar las filas
+## * select() -> seleccionar variables por sus nombres
+## * mutate() -> crea nuevas variables con funciones a partir de las existentes
+## * summarise() -> colapsar varios valores para dar un resumen de los mismos
+## * group_by() -> opera la función a la que acompaña grupo a grupo
+
+# siempre habrá que suministrar:
+## 1 - data frame 
+## 2 - operaciones que queremos hacer a las variables del data frame
+## 3 - resultado en un nuevo data frame
+```
+
+#Funciones:
+## Filter
+
+Nos ayuda a obterner un subconjunto de observaciones a partir de una serie de valores
+
+```{r}
+# Por ejemplo:
+# - Si quisiera observar los vuelos que salieron el día 1 de Enero:
+jan1 <- filter(flights, month == 1, day == 1)
+# Salieron de New York 842 vuelos
+
+# - Si quisiera observar los vuelos que salieron en mi cumpleaños:
+sep11 <- filter(flights, month == 9, day == 11)
+
+# Operadoder de comparación >, >=, <, <=, ==, !=
+
+# Si tuviera problemas al comparar variables numéricas:
+sqrt(2)^2 == 2 # Resultado es False, ya que son de coma flotante y hay muchos decimales, aunque debería ser True
+sqrt(2)^2 - 2
+near(sqrt(2)^2, 2) # si utilizo la funcion NEAR ya cambia a TRUE porque se acerca bastante
+
+# Quiero filtras los meses de Mayo o Junio:
+filter(flights, month == 5 | month == 6)
+
+# Si quisiera almacenar en una variable los meses de Mayo y Junio o efectuados entre dichos meses:
+may_jun <- filter(flights, month %in% c(5,6))
+
+# Si quisiera filtras los vuelos que no se retrasaron en la llegada mas de 60 min, o que no se retrasaron en la salida mas de 60 min
+
+filter(flights, !(arr_delay > 60 | dep_delay >60))
+# Utilizando la ley de Morgan (Explicada en el siguiente Chunk):
+filter(flights, arr_delay <= 60, dep_delay <= 60)
+
+```
+
+# NA con Filter
+
+```{r}
+df <- tibble(x = c(1,2,NA,4,5))
+df # tenemos un data frame con una observacion desconocida
+filter(df, x>2) # la funcion ignora completamente la aparición de observaciones desconocidas
+filter(df, is.na(x)|x>2) #podemos hacer que la incluya: Filtrame si en x hay NA ó son mayores a 2
+```
+
+## Ley de Morgan:
+
+```{r}
+#!(x&y) == (!x)|(!y)
+#!(x|y) == (!x)&(!y)
+#Notas:
+#!(x&y) negar x y negar y es exactamente a == (!x)|(!y) negar x ó negar y
+#!(x|y) == (!x)&(!y) negar una unión x ó y es equivalente a negar x y negar y
+```
+
+### Ejercicios Filter
+
+```{r}
+# Encuentra todos los vuelos que llegaron más de una hora tarde de lo previsto
+filter(flights, arr_delay > 60)
+#Encuentra todos los vuelos que volaron hacia San Francisco (aeropuertos SFO y OAK)
+filter(flights, dest == "SFO" | dest == "OAK")
+#Encuentra todos los vuelos operados por United American (UA) o por American Airlines (AA)
+filter(flights, carrier == "UA" | carrier == "AA")
+#Encuentra todos los vuelos que salieron los meses de primavera (Abril, Mayo y Junio)
+filter(flights, month %in% c(4,5,6))
+# ó
+filter(flights, month == 4 | month == 5 | month == 6)
+#Encuentra todos los vuelos que llegaron más de una hora tarde pero salieron con menos de una hora de retraso.
+filter(flights, arr_delay > 60, dep_delay <=60 )
+#Encuentra todos los vuelos que salieron con más de una hora de retraso pero consiguieron llegar con menos de 30 minutos de retraso (el avión aceleró en el aire)
+filter(flights, arr_delay > 60, dep_delay <= 30) 
+#Encuentra todos los vuelos que salen entre medianoche y las 7 de la mañana (vuelos nocturnos)
+filter(flights, hour >= 0, hour < 7)
+
+# Funcion between:
+
+#Investiga el uso de la función between() de dplyr. ¿Qué hace? Puedes usarlo para resolver la sintaxis necesaria para responder alguna de las preguntas anteriores?
+
+   ## Permite filtrar un campo comprendido entre dos valores concretos. Por ejemplo, en la pregunta anterior, podríamos filtrar los vuelos nocturnos haciendo uso de 
+
+filter(flights, between(hour,0,6)) 
+
+# ¿Cuantos vuelos tienen un valor desconocido de dep_time?
+
+filter(flights, is.na(dep_time)) # Hay un total de 8255 vuelos sin dicho campo.
+
+#¿Qué variables del dataset contienen valores desconocidos? ¿Qué representan esas filas donde faltan los datos?
+
+   ##Los campos desconocidos son fechas de salida/llegada así como retraso de salida/llegada. Puede que se trate de vuelos cancelados, sobretodo por las cifras que manejamos (unos 8000 vuelos anuales). 
+
+```
+
+## Arrange
+
+Filtra los datos pero los hace ordenandolos, (reordenandolos)
+
+```{r}
+# Ordenando por año:
+arrange(flights, year)
+# Ordenando por año, mes y día:
+sorted_data <- arrange(flights, year, month, day) 
+# Por defecto Arrgange ordena de Menor a Mayor
+
+# Si quiero ordenar de Mayor a menor:
+# En este caso ordeno por la variable arr_delay (retrasos en llegadas)
+head(arrange(flights, desc(arr_delay)))
+
+# Ordenando por la variable dep_dalay (rertasos en salidas)
+arrange(flights, desc(dep_delay))
+
+# Si quisiera ordenar por distancia:
+arrange(flights, distance) # solo recorrio 17 km
+
+# Si quisieramos ordenar por el vuelo que mas distancia recorrió:
+arrange(flights, desc(distance))
+
+
+# IMPORTANTE:
+# - si el campo tiene NA las observaciones quedarán al final
+# - también puedo ordenar por valores alfabéticos
+
+# Si quisiera respetar el orden pero obtener algunas filas especificamente:
+sorted_data[1,] # fila 1 y todas las columnas
+sorted_data[1024:1068,] # de la fila 1024 a la 1068 , y todas las columnas
+```
+
+### Ejercicios Arrange
+
+```{r}
+# Piensa cómo podrías usar la función arrange() para colocar todos los valores NA al inicio. Pista: puedes la función is.na() en lugar de la función desc() como argumento de arrange.
+
+arrange(flights,!is.na(dep_time)) 
+
+#Ordena los vuelos de flights para encontrar los vuelos más retrasados en la salida. ¿Qué vuelos fueron los que salieron los primeros antes de lo previsto?
+
+# El más retrasado fue: 
+arrange(flights, desc(dep_delay))[1,] 
+
+# El menos retrasado fue: 
+arrange(flights, dep_delay)[1,]
+
+#Ordena los vuelos de flights para encontrar los vuelos más rápidos. Usa el concepto de rapidez que consideres. 
+arrange(flights, desc(distance/air_time))
+
+#¿Qué vuelos tienen los trayectos más largos? Busca en Wikipedia qué dos aeropuertos del dataset alojan los vuelos más largos. 
+
+   #Vuelos entre el JFK de Nueva York y el HNL, aeropuerto internacional de Honolulu en Hawaii
+
+#¿Qué vuelos tienen los trayectos más cortos? Busca en Wikipedia qué dos aeropuertos del dataset alojan los vuelos más largos. 
+
+   #Vuelos entre el EWR, Aeropuerto Internacional Libertad de Newark  y LGA, Aeropuerto de La Guardia, ambos situados en el estado de Nueva York
+
+```
+
+
+## Select
+
+```{r}
+# Si quisiera obtener un sub conjunto:
+select(sorted_data[1024:1068,], dep_delay, arr_delay)
+
+# Si quisiera obtener columnas:
+select(flights, year, month, day)
+
+# Si quisiera obtener campos y/o columnas intermedias puedo hacer lo siguiente:
+select(flights, dep_time:arr_delay) # me traería todas aquellas columnas intermedias con su info por fila
+
+# Seleccionar columnas excepto un subconjuto:
+select(flights, -(year:day)) # seleccioname todas las columnas de flights excepto las que van de año a dia
+
+# Seleccionaria todas las columnas qeu empiezan por la palabra "dep"
+select(flights, starts_with("dep"))
+
+# Si quiero todas las métricas que me indiquen retraso:
+select(flights, ends_with("delay"))
+
+# Selecciona todas las columnas que contengan una "st":
+select(flights, contains("st"))
+
+# Expresiones regulares: Ubica cualquier dato o cosa que aparezca al menos 2 veces: 
+select(flights, matches("(.)\\1")) #"(.)" todo y \\1 al menos 2 veces
+
+# Si quieramos buscar variables "x" que luego le siguieran numeros del 1 al 5
+select(flights, num_range("x",1:5))# x1, x2, x3, x4, x5
+
+
+```
+
+## Renombrar y ordenar columnas
+
+Funcion Rename es una variante de Select
+```{r}
+# Renombro la variable dep_time y le quito el "_"
+# Primero coloco el DF, Luego el cambio y luego la variable a renombrar
+rename(flights, deptime = dep_time, 
+       anio = year, mes = month, dia = day)
+
+
+# Si quisiera mover de orden unas columnas determinadas y luego mantener el resto, utilizo EVERYTHING()
+select(flights, time_hour, distance, air_time, everything())
+
+
+sorted_date
+
+
+```
+
+### Ejercicios Select
+
+```{r}
+# Dale al coco para pensar cuantas más maneras posibles de seleccionar los campos dep_time, dep_delay, arr_time y arr_delay del dataset de flights. 
+
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+
+select(flights,starts_with("dep"), starts_with("arr"))
+
+select(flights,ends_with("time"), ends_with("delay") -starts_with("sched"),-starts_with("air") )
+
+
+#¿Qué ocurre si pones el nombre de una misma variable varias veces en una select()?
+
+select(flights, distance, distance) # Solo la selecciona una sola vez
+
+#Investiga el uso de la función one_of() de dplyr. 
+
+   #Permite añadir las variables en string dentro de un vector. Muy útil si es el resultado de un programa que ha devuelto un array de variables que queremos seleccionar automáticamente
+
+# Investiga cómo puede ser útil la función one_of() de la pregunta anterior en conjunción con el vector de variables 
+
+select(flights, one_of(c("year", "month", "day", "dep_delay", "arr_delay")))
+
+#Intenta averiguar el resultado del siguiente código. Luego ejecútalo y a ver si el resultado te sorprende.
+
+select(flights, contains("time"))
+
+#Intenta averiguar cómo lo hacen las funciones de ayuda de la select para tratar el caso por defecto y cómo lo puedes cambiar
+
+    #Nos devuelve todas las variables que tienen la palabra "time" en su nombre. Muy útil cuando queremos localizar todo lo que tiene que ver con tiempo.
+```
+
+## Mutate
+
+Con esta función podemos crear nuevas variables que se calculan a partir de variables existentes,mutate() nos proporciona una interface clara para realizar este tipo de operaciones.
+
+```{r}
+# Mutate añade nuevas columnas al final del Data Set
+
+# Fabrico un subconjunto de datos
+
+flights_new <- select(flights,
+                      year:day, 
+                      ends_with("delay"),
+                      distance, 
+                      air_time)
+
+mutate(flights_new,
+       time_gain = arr_delay - dep_delay,    #diff_t (min) # Agrego una columna para calcular la diferencia en minutos
+       air_time_hour = air_time/60, 
+       flight_speed = distance/air_time_hour, #v = s/t (km/h)
+       time_gain_per_hour = time_gain / air_time_hour
+       ) -> flights_new # asigno a una variable para quedarme con los ultimos cambios (Esta funcion guardará todas las variables incluyendo aquellas que utilice al principio, por ejemplo year, month, day...)
+
+transmute(flights_new,
+          time_gain = arr_delay - dep_delay,
+          air_time_hour = air_time/60,
+          flight_speed = distance / air_time_hour,
+          time_gain_per_hour = time_gain / air_time_hour) -> data_from_flights # asigno a una nueva variable y a diferencia de MUTATE esta funcion solo almacenara las ultimas variables
+
+
+## Funciones que solemos utilizar con MUTATE
+
+# * Operaciones aritméticas: +, -, *, /, ^  (hours + 60 * minutes) podría ser el AIR TIME
+# * Agregados de funciones: x/sum(x) : proporición sobre el total
+#                           x - mean(x): distancia respecto de media
+#                           (x - mean(x))/sd(x): tipificación
+#                           (x - min(x))/(max(x) - min(x)): estandarizar entre [0,1]
+# * Aritmética modular: %/%-> cociente de la división entera, %% -> resto de la división entera
+#                       x == y * (x%/%y) + (x%%y) ALGORITMO DE EUCLIDES
+
+# Por ejemplo:
+# Si quisiera saber cuantas horas y minutos equivalen las horas en el aire:
+transmute(flights, 
+          air_time, #minutos
+          hour_air = air_time %/% 60, # horas
+          minute_air = air_time %% 60 # min
+          )
+
+# * Logaritmos: log() -> logaritmo en base e neperiano, log2(), log10()
+
+# * Offsets: lead()->mueve hacia la izquierda, lag()->mueve hacia la derecha
+df1 <- 1:12
+df1
+lag(df1) # Mueve hacia la derecha 1 espacio, por lo que si empezaba en 1 ahora empieza en NA y el 1 ocupa la segunda pos
+lead(df1) # Mueve hacia la izquierda
+
+# * Funcions acumulativas: cumsum(), cumprod(), cummin(), cummax(), cummean()
+df1
+cumsum(df1)
+cumprod(df1)
+cummin(df1) # acumula el numero mas pequeño
+cummax(df1) # acumula el numero mas grande
+cummean(df1) # acumula promedios
+
+# * Comparaciones lógicas: >, >=, <, <=, ==, !=
+
+    # Crea una columna de valores logicos
+transmute(flights, 
+          dep_delay,
+          has_been_delayed = (dep_delay >0)
+          ) 
+
+
+# * Rakings: min_rank()
+df2 <- c(7,1,2,5,3,3,8,NA,3,4,-2)
+df2
+min_rank(df2) # indica la posicion que ocupan, por ejemplo el número 7 ocupa la novena posicion
+
+df2
+min_rank(desc(df2)) # indica la posicion que ocupan ordenados de mayor a menor por lo que en este caso el 7 ocuparia la posicion 2
+
+row_number(df2) # no hay posiciones repetidas
+
+dense_rank(df2) # si deja repeticiones
+
+percent_rank(df2) # es el porcentaje relativo, que porcentaje del total representa cada numero
+
+cume_dist(df2) # nos dice los percentiles de cada uno de los elementos.
+
+ntile(df2, n = 4) # indica los percentiles, cuantos pertenecen al primer quantil, segundo, y asi
+
+transmute(flights, 
+          dep_delay,
+          ntile(dep_delay, n = 100))
+
+```
+
+### Ejercicios Mutate y trasmute
+
+```{r}
+# El dataset de vuelos tiene dos variables, dep_time y sched_dep_time muy útiles pero difíciles de usar por cómo vienen dadas al no ser variables contínuas. Fíjate que cuando pone 559, se refiere a que el vuelo salió a las 5:59... 
+
+   #Convierte este dato en otro más útil que represente el número de minutos que horas desde media noche. 
+transmute(flights, 
+          dep_time, sched_dep_time,
+          new_dep_time = 60*dep_time %/% 100 + dep_time %% 100 , 
+          new_sched_dep_time = 60*sched_dep_time %/% 100 + sched_dep_time %% 100
+          )
+
+# Compara las variables air_time contra arr_time - dep_time. 
+
+transmute(flights,
+          air_time, 
+          new_dep_time = 60*dep_time %/% 100 + dep_time %% 100 , 
+          new_arr_time = 60*arr_time %/% 100 + arr_time %% 100,
+          new_air_time = new_arr_time - new_dep_time)
+
+# Compara los valores de dep_time, sched_dep_time y dep_delay. Cómo deberían relacionarse estos tres números? Compruébalo y haz las correcciones numéricas que necesitas.
+
+transmute(flights,
+          new_dep_time = 60*dep_time %/% 100 + dep_time %% 100 , 
+          new_sched_dep_time = 60*sched_dep_time %/% 100 + sched_dep_time %% 100,
+          new_delay = new_dep_time - new_sched_dep_time,
+          dep_delay,
+          new_delay==dep_delay)
+
+# Usa una de las funciones de ranking para quedarte con los 10 vuelos más retrasados de todos. 
+
+arrange(mutate(flights,
+          r_delay = min_rank(dep_delay)),
+         r_delay
+        )[1:10,]
+
+# Aunque la ejecución te de una advertencia, qué resultado te da la operación
+
+1:6 + 1:20
+```
+
+## SUMMARISE
+
+Resumira todo en un dato
+
+```{r}
+### SUMMARISE
+
+summarise(flights, delay = mean(dep_delay, na.rm = T)) # el Na.rm está eliminado los valores desconocidos para poder obtener el calculo // DF, la asignacion del nombre donde se añadirá el dato = operación que realizaré sobre(la columna) 
+
+by_month_group < group_by(flights, year, month)
+summarise(by_month_group, delay = mean(dep_delay, na.rm = T))
+
+
+# Agrupo por Empresas y saco la media de los retrasos
+summarise(group_by(flights, carrier),
+          delay = mean(dep_delay, na.rm = T))
+
+```
+
+## PIPES
+
+```{r}
+
+agrupando <- group_by(flights, carrier)
+agrupando
+
+group_by_dest <- group_by(flights, dest)
+delay <- summarise(group_by_dest,
+                   count = n(),
+                   dist = mean(distance, na.rm = T),
+                   delay = mean(arr_delay, na.rm = T)
+)
+
+
+
+delays <- flights %>%
+  group_by(dest) %>%
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = T),
+    delay = mean(arr_delay, na.rm = T)
+  ) %>%
+  filter(count > 100, dest!="HNL")
+```
+
+
+```{r}
+example <- tibble(number = c("#1", "1.5", "-", "8"))
+
+example %>%
+  mutate(number = number %>%
+    str_replace_all("^-$", "0") %>%
+    parse_number())
+```
+
+## NA contagiosos
+
+```{r}
+is.na()
+```
+

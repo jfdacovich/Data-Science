@@ -1,0 +1,339 @@
+---
+title: "08_EDA_AdultCensus"
+author: "Jorge Faieta Dacovich - Bootcamp NEOLAND"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    highlight: tango
+    theme: spacelab
+    toc: yes
+---
+
+Basado en la última práctica EDA Titanic en R Studio (el fichero original así como el fichero HTML se encuentra en Google Drive), deben realizar una EDA completo para este dataset:
+
+https://archive.ics.uci.edu/ml/datasets/adult
+
+**IMPORTANTE**:
+Los pasos a realizar son:
+- [ ] exploración
+- [ ] limpieza
+- [ ] discretización
+
+
+Intentar crear el output de salida en formato HTML (buscar info de `knit` y sus dependencias)
+
+# Información Data:
+
+En este Data Frame encontraremos una serie de datos demosgráficos tales como, edad, sexo, lugar de nacimiento, así como algunas características sociales como podría ser la labor/ ocupación, estado civil, ingresos percibidos, entre otros datos, los cuales fueron tomados en un censo realizado en el año 1994, con la intención de predecir si un indviduo percibe ingresos superiores a $ 50.000 al año.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Cargamos el juego de datos
+datosAdult <- read.csv('http://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data',stringsAsFactors = FALSE, header = FALSE)
+
+# Nombres de los atributos
+names(datosAdult) <- c("age","workclass","fnlwgt","education","education-num","marital-status","occupation","relationship","race","sex","capital-gain","capital-loss","hour-per-week","native-country","income")
+```
+
+```{r}
+# Normalmente Al aplicar la funcion unique se pretende eliminar aquellos valores/elementos que se encuentran duplicados en un Data Frame, en esta oportunidad la utilizamos en la columna education y education num, para poder observar los elementos que las componen
+unique(datosAdult$education)
+unique(datosAdult$`education-num`)
+```
+
+```{r}
+# Librerias:
+library(ggplot2)
+```
+
+
+```{r}
+filas= nrow(datosAdult)
+E18=c(" Preschool"," 1st-4th"," 5th-6th"," 7th-8th"," 9th"," 10th" ," 11th"," 12th")
+E912=c(" HS-grad"," Some-college"," Assoc-acdm"," Assoc-voc")
+E1316=c(" Bachelors"," Masters" ," Prof-school"," Doctorate")
+ for (i in 1:filas){
+if (datosAdult$education[i] %in% E18){
+  datosAdult$education[i]= "E18"
+} else if(datosAdult$education[i] %in% E912){
+  datosAdult$education[i]= "E912"
+} else if (datosAdult$education[i] %in% E1316){
+  datosAdult$education[i]= "E1316"
+}
+}
+table(datosAdult$education)
+```
+
+# Observacion y Exploracion 
+
+```{r}
+# Observamos los 10 primeros valores contenidos en el DF
+head(datosAdult, n= 10)
+# Observamos sus dimensiones: 
+dim(datosAdult)[1] # 32561 observaciones
+dim(datosAdult)[2] # 15 variables
+# Observamos su estructura
+str(datosAdult)
+# Observamos el tipo de data
+typeof(datosAdult) 
+is.data.frame(datosAdult) 
+```
+
+```{r}
+# Visualizamos los estadísticos básicos del DF
+summary(datosAdult)
+```
+
+# Observaciones y comentarios
+
+```{r}
+# Observo cada una de las variables y los valores que contienen (dependiendo del caso visualizaré los valores absolutos o relativos):
+
+table(datosAdult$age) # Observaciones del tipo int con esta funcion no podemos llegar a ninguna conclusión de momento
+mean(datosAdult$age) # consulto la media de Edad
+
+table(datosAdult$workclass)# Encontramos que uno de los chr está definido con una interrogación y posee 1836 datos aprox un 6 % de los datos
+round(prop.table(table(datosAdult$workclass)),2)*100
+# Algo que podríamos hacer es agrupar las observaciones Federal gov, State gov, Local gov en "Gobierno", adicionalmente tenemos la clase que trabaja para el sector privado, aquellos que trabajan por cuenta propia (Self-emp-inc y self-emp-not-inc) y aquellos que nunca han trabajado o no reciben pagas. (no lo haré de momento pero está bien para hacerse una idea)
+
+table(datosAdult$fnlwgt) # No puedo obtener conclusiones a primera vista
+
+table(datosAdult$education) # Tal y como asignamos al principio E18 formaría parte de una educación básica o incial, E912  educación media (62% aprox)y E1316 asociado a individuos con estudios avanzados
+round(prop.table(table(datosAdult$education)),2)*100
+
+table(datosAdult$`marital-status`) # Los dos grupos en los que encontramos mayor cantidad de personas son: Married-civ-spouse y Never Married.
+round(prop.table(table(datosAdult$`marital-status`)),2)*100
+# Podríamos agrupar Casodos, divorciados/separados, viudos, solteros por ejemplo.
+
+table(datosAdult$occupation) # tenemos una variable definida con una interrogación, 1843 datos
+
+table(datosAdult$relationship) # Pareciera que la característica de que están casado tiene bastante peso entre las observaciones
+
+table(datosAdult$race)
+round(prop.table(table(datosAdult$race)),2)*100
+# Aproximadamente el grupo "white" es la observación mas popular con el 85%
+
+table(datosAdult$sex) # Tenemos mas participación de hombres que mujeres alrededor de un 66% vs 44%
+
+table(datosAdult$`capital-gain`) # No puedo obtener conclusiones a primera vista
+table(datosAdult$`capital-loss`) # No puedo obtener conclusiones a primera vista
+
+table(datosAdult$`hour-per-week`)
+
+table(datosAdult$`native-country`) # tenemos una variable representada con una interrogante y 583 observaciones, podríamos agrupar por continente en dado caso
+
+table(datosAdult$income) # Aproximadamente el 75% de las observaciones ganan año un monto menor o igual a 50k
+```
+
+
+# Limpieza 
+
+```{r}
+# Utilizamos las siguientes funciones de exploración para determinar si existes valores no disponibles, vacíos o valores Nan
+colSums(is.na(datosAdult)) # no hay presencia de valores NA
+colSums(datosAdult == "") # Tampoco encontramos observaciones vacías
+```
+
+
+```{r}
+# Respaldo
+#Antes de continuar haré un respaldo, en vista de que es bastante probable de que modifique y/o destruya algo del DataFrame original
+
+Respaldo <- datosAdult
+
+```
+
+
+```{r}
+# Procederé a limpiar/imputar aquellas variables que tienen entre sus observaciones: ?
+# - Workclass, Occupation  y Native Country
+```
+
+```{r}
+# Workclass 
+# Recordamos:
+round(prop.table(table(datosAdult$workclass)),2)*100
+# respresenta un 6% por lo cual lo asignare a la Private
+attach(datosAdult)
+# Asignamos a Private - " ?"
+workclass[workclass == " ?"] = "Private"
+
+table(workclass) # la asignacion se ha realizado de la manera correcta
+
+
+
+# Native-Country  (En principio lo había asignado a una copia del DF adultNA sin embargo me genera un error, me duplica United States, es por este motivo que haré la asignacion de la misma forma que con Workclass)
+
+round(prop.table(table(`native-country`)),2)*100
+
+# respresenta un 2% podría asignarlo a NA o simplemente, asignarselo a "Estados unidos"
+# Asignamos a "United-States" - " ?"
+`native-country`[`native-country` == " ?"] = " United-States"
+
+table(`native-country`)
+round(prop.table(table(`native-country`)),2)*100 # AUMENTO EN 1 Estados unidos, cuando debería ser en 2, Preguntar a Marco
+
+detach(datosAdult)
+
+```
+
+```{r}
+# Occupation: 
+
+#Preguntar a Marco que es lo ideal de hacer, 1) Crear una copia del DF y hacer el replace en el o como lo hago a continuación:
+
+
+table(datosAdult$occupation)
+# Hago la imputacion de aquellos valores " ?" por NA, bajo el metodo replace
+datosAdult$occupation <- replace(as.vector(datosAdult$occupation), as.vector(datosAdult$occupation) == " ?", NA)
+
+table(datosAdult$occupation)  # compruebo que todo ok
+
+colSums(is.na(datosAdult)) # Encontrareoms en Occupation las 1843 observaciones, que en un principio se encontraban definidas por " ?"
+
+mean(is.na(datosAdult$occupation)) # Si deseamos conocer el porcentaje de valores NA
+
+```
+
+```{r}
+# PREGUNTA:
+# si quisiera eliminar la variable education-num sería de esta manera?:
+# datosAdult[,"education-num"] = NULL
+# ó
+# datosAdult$"education-num" <- NULL
+
+# Yo eliminaría capital-gain, capital-loss, fnlwgt debido a lo básico de mi análisis
+```
+
+# Discretizacion de los atributos
+
+```{r}
+# Observamos los valores únicos de los atributos
+attach(datosAdult)
+apply(datosAdult, MARGIN = 2, FUN = function(x) length (unique(x)))
+```
+
+```{r}
+# Realizamos la factorización de los atributos:
+
+# En esta oportunidad lo realizaré de forma manual:
+workclass <- as.factor(workclass)
+education <- as.factor(education)
+`marital-status` <- as.factor(`marital-status`)
+relationship <- as.factor(relationship)
+race <- as.factor(race)
+sex <- as.factor(sex)
+income <- as.factor(income)
+
+detach(datosAdult)
+
+# Alternativa con For
+# de forma iterativa sería de la siguiente forma:
+# cols <- c("workclass", "education", "marital-status", "relationship", "race", "sex", "income")
+# for (i in cols){
+    #datosAdult[,i] = as.factor(datosAdult[,i])
+#}
+```
+
+
+```{r}
+str(datosAdult) # Comprobamos que los cambios se hayan realizado de manera correcta.
+is.factor(race) # también lo puedo comprobar de esta manera, tomo de ejemplo el atributo race
+```
+
+# Procesos de análisis del conjunto de datos
+
+```{r}
+# Visualizamos la relacion de las variables "age" y "income"
+
+# almacenamos las observaciones  en una variable "filasG"
+filasG <- dim(datosAdult)[1]
+
+#Visualizamos
+ggplot(data = datosAdult[1:filasG,],
+       aes(
+         x = age,
+         fill = income
+         )
+       ) + geom_bar()
+
+# podemo apreciar que las personas que perciben mas de 50k están en pleno apogeo de su carrera profesional, sin embargo hay una gran cantidad de personas que perciben ingresos inferiores a dicha cantidad
+
+```
+
+```{r}
+# Visualizamos la frecuencia (relación de las variables "income" y "sex")
+
+ggplot(
+  data = datosAdult[1:filasG, ],
+  aes(
+    x = income,
+    fill = sex,
+  )
+) + geom_bar(position = "fill") + ylab("Frecuencia")
+
+
+# Podemos observar que hay una clara diferencia entre los ingresos percibidos (>50k) entre hombres y mujeres, siendo los primeros muy superiores
+
+```
+
+```{r}
+# Creamos un gráfico combinado con frecuencias relativas
+
+# almacenamos en una nueva tabla los valores absolutos
+t <- table(datosAdult[1:filasG, ]$income,
+           datosAdult[1:filasG, ]$sex)
+t
+
+for (i in 1:dim(t)[1]){
+  t[i,] <- t[i,] / sum(t[i,])*100
+}
+t
+
+ggplot(data = datosAdult[1:filasG,],
+       aes(x = income,
+           fill= sex
+           )
+) + geom_bar(position = "fill") + ylab("Frecuencia")+facet_wrap(~race)
+
+# En este gráfico observamos por "race" los niveles de ingreso de hombres y mujeres, en todos los casos evaluados los hombres perciben mas ingresos que las mujeres.
+```
+
+```{r}
+# Altenrnativa
+# Visualizamos la relacion de las variables "age" y "sex"
+
+ggplot(data = datosAdult[1:filasG,],
+       aes(
+         x = age,
+         fill = sex
+         )
+       ) + geom_bar()
+
+# 
+```
+
+
+```{r}
+
+# Relacion sex e ingresor por estado civil
+
+ggplot(data = datosAdult[1:filasG,],
+       aes(x = income,
+           fill= sex
+           )
+) + geom_bar(position = "fill") + ylab("Frecuencia")+facet_wrap(~`marital-status`)
+
+# Algo importante de destacar es en Widowed, es decir cuando enviudan la proporcion de ingresos superiores a 50k se igualan para ambos sexos
+```
+
+
+```{r}
+# Encontré una manera de limpiar bastante interesante, intenté ponerla en práctica y me generó errors (estaría genial revisarla con el profesor) 
+# https://github.com/arasan274/adultcensusincome/blob/master/Adult_Census_Income.rmd
+```
+
+
+
+
+
+

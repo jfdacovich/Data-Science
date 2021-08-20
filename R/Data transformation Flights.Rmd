@@ -1,0 +1,156 @@
+---
+title: "Operaciones Flights"
+author: "Jorge_Faieta_Dacovich "
+date: "3/12/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+nycflights13::flights
+```
+
+# Operaciones 
+
+```{r}
+# agrupo los datos por año, mes y dia y calculo removiendo los na la media, mediana, etc
+flights %>% 
+  group_by(year, month, day) %>%
+  summarise(mean = mean(dep_delay, na.rm  = T),
+            median = median(dep_delay, na.rm = T),
+            sd = sd(dep_delay, na.rm = T),
+            count = n()
+            )
+
+# también puedo filtrar primero por aquellos valores diferentes de na
+flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay)) %>% 
+  group_by(year, month, day) %>%
+  summarise(mean = mean(dep_delay, na.rm  = T),
+            median = median(dep_delay, na.rm = T),
+            sd = sd(dep_delay, na.rm = T),
+            count = n()
+  ) 
+
+```
+
+# Ejemplo beisbol
+
+```{r}
+View(Lahman::Batting)
+?Lahman::Batting
+batting <- as_tibble(Lahman::Batting)
+```
+
+
+```{r}
+
+batters <- batting %>%
+  group_by(playerID) %>%
+  summarise(hits = sum(H, na.rm = T),
+            bats = sum(AB, na.rm = T),
+            bat.average = hits / bats
+  )
+
+batters %>%
+  filter(bats > 100) %>%
+  ggplot(mapping = aes(x = bats, y = bat.average))+
+   geom_point(alpha = 0.2) +
+   geom_smooth(se = F)
+  
+  
+batters %>%
+  filter(bats > 100) %>%
+  arrange(desc(bat.average))
+
+```
+
+```{r}
+# * Medidas de Centralización
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(
+    mean = mean(arr_delay),
+    mean2 = mean(arr_delay[arr_delay>0]),
+    median = median(arr_delay)
+  )
+# * Medidas de dispersión
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(
+    sd = sd(arr_delay),
+    iqr = IQR(arr_delay),
+    mad = mad(arr_delay)
+  ) %>%
+  arrange(desc(sd))
+
+?mad
+
+# Medidas de orden
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(
+    first = min(arr_delay),
+    q1 = quantile(arr_delay, 0.25),
+    median = quantile(arr_delay, 0.5),## median()
+    q3 = quantile(arr_delay, 0.75),
+    last = max(arr_delay)
+    )
+
+# Medida de posición 
+not_cancelled %>%
+  group_by(carrier) %>%
+  arrange(dep_time) %>%
+  summarise(
+    first_dep = first(dep_time),
+    second_dep = nth(dep_time, 2),
+    third_dep = nth(dep_time, 3),
+    last_dep = last(dep_time)
+  )
+```
+
+```{r}
+# Funciones de conteo
+flights %>%
+  group_by(dest) %>%
+  summarise(
+    count = n(),
+    carriers = n_distinct(carrier), # Importante
+    arrivals = sum(!is.na(arr_delay)),
+    cancelled = count - arrivals
+  ) %>%
+  arrange(desc(carriers))
+
+
+not_cancelled %>% count(dest)
+
+not_cancelled %>% count(tailnum, wt = distance)
+```
+
+```{r}
+## sum /mean de valores lógicos 
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarise(n_prior_5 = sum(dep_time < 500))
+
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(more_than_hour_delay = mean(arr_delay>60)) %>%
+  arrange(desc(more_than_hour_delay))
+```
+
+# Agrupaciones multiples
+
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day <- summarise(daily, n_fl = n()))
+(per_month <- summarise(per_day, n_fl = sum(n_fl)))
+(per_year <- summarise(per_month, n_fl = sum(n_fl)))
+
+business <- group_by(flights, carrier, dest, origin)
+summarise(business, n_fl = n()) %>%
+  summarise(n_fl = sum(n_fl)) %>%
+  summarise(n_fl = sum(n_fl)) 
+```
+

@@ -1,0 +1,349 @@
+---
+title: "Tidyverse Curso"
+author: "JorgeF"
+date: "9/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Cargamos la libreria
+library(tidyverse)
+```
+# Interrogantes a solucionar
+
+```{r}
+#Los coches con motor más grande consumen más combustible 
+#que los coches con motor más pequeño.
+#La relación consumo / tamaño es lineal? Es no lineal? Es exponencial?
+#Es positiva? Es negativa?
+```
+
+
+```{r}
+view(mpg)
+# displ: tamaño del motor del coche en litros
+# hwy: número de millas recorridas en autopista por galón de combustible (3.785411784 litros)
+
+# Primera representación Gráfica
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+# mientras mayor sea el tamaño del motor observamos que recorre menos millas
+
+```
+# Plantillas representación gráfica con GGPLOT
+
+```{r ggplot plantilla}
+#ggplot(data = <DATA_FRAME>) +
+#  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+
+```{r}
+# Voy a añadir colores en los puntos del gráfico anterior, que hagan referencia a los tipos de coches
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+
+# Los valores inusuales o valor atípico (outlier) corresponden a coches de dos asientos, podrían ser convertibles o coches pequeños, los mismos tienen un gran tamaño de motor y recorren mas millas
+
+# Si en vez de colores asignamos a estos puntos un tamaño (conviene que sea una variable numerica):
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+
+# Gestionando la transparencia de los puntos o la opacidad con alpha
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+
+#Forma de los puntos (solo permite 6 formas a la vez)
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+
+```
+
+```{r}
+#Elección manual de estéticas
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "red") # cambia la aparencia global de la representación,
+# Importante se cierra el parentesis una vez definidos los ejes y añado una coma y el color.
+
+# color = nombre del color en formato string
+# size = tamaño del punto en mm
+# shape = forma del punto con números desde el 0 al 25
+# 0 - 14: son formas huecas y por tanto solo se le puede cambiar el color
+# 15- 20: son formas rellenas de color, por tanto se le puede cambiar el color
+# 21 - 25: son formas con borde y relleno, y se les puede cambiar el color (borde) y el fill (relleno)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), shape = 23, size = 10, color = "red", fill = "yellow") 
+
+```
+
+# Facets de ggplot
+
+Muestran una de las dimensiones categóricas de los datos
+
+```{r}
+
+# facet_wrap(~<FORMULA_VARIABLE>): la variable debe ser discreta
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~class, nrow = 3) # Vería un gráfico para cada tipo de coche
+
+# Para combinar 2 variables usamos FACET GRIP
+# facet_grid(<FORMULA_VARIABLE1>~<FORMULA_VARIABLE2>)
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x=displ, y = hwy)) +
+  facet_grid(drv~cyl)
+
+```
+
+# Diferentes Geometrías
+
+```{r}
+# Misma tipo de gráfico anterior
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x=displ, y =hwy))
+
+# Geometría suavizada pero con las mismas variables
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x=displ, y = hwy))
+
+# Para definir el tipo de línea para cada tipo de tracción de vehículo
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x=displ, y = hwy, linetype = drv))
+
+# Podemos combinar geometrías
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x=displ, y=hwy, color = drv)) +
+  geom_smooth(mapping = aes(x=displ, y = hwy, linetype = drv, color = drv))
+```
+
+```{r}
+# Agrupo por alguna de las variables que es discreta, por ejemplo: Drv
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x=displ, y=hwy, group = drv, color = drv),# añado dimensión que permita distinguir: Color
+              show.legend = T) # por si solo el group no nos va a ayudar a identificar el tipo de observación, por eso usamos show legend
+
+# Combinación de geometrías:
+ggplot(data = mpg, mapping = aes(x=displ, y=hwy)) + # mappings globales
+  geom_point(mapping = aes(shape = class)) + 
+  geom_smooth(mapping = aes(color = drv))
+
+
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy)) + # mappings globales para simplificar diferentes capas con la misma información
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "suv"), se = F) # Filtrando, "se": elimina el intervalo de confianza
+
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy,color = drv)) + 
+  geom_point() + 
+  geom_smooth( se = F)
+```
+
+# Ejercicios
+```{r}
+#Ejercicio 4
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy)) + 
+  geom_point() + # mismo resultado que la línea de código de abajo
+  geom_smooth() # en el primero se define la variable mapping como global para no tener que repetir 
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x=displ, y = hwy)) + 
+  geom_smooth(mapping = aes(x=displ, y = hwy))
+
+#Ejercicio 5
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se=F) # el se= F hace que no se muestre en error estándar
+
+#Ejercicio 6
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(mapping = aes(group=drv), se=F) # agrupo por drv sin mostrar el se
+
+#Ejercicio 7
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy, col=drv)) + 
+  geom_point() + 
+  geom_smooth( se=F)
+
+#Ejercicio 8
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy)) + 
+  geom_point(mapping = aes(col=drv, shape = drv)) + # doy color y forma por "drv"
+  geom_smooth( se=F)
+
+#Ejercicio 9
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy) ) + 
+  geom_point(mapping = aes(col=drv, shape = drv)) + 
+  geom_smooth(mapping = aes(linetype = drv), se=F)
+
+#Ejercicio 10
+ggplot(data = mpg, mapping = aes(x=displ, y = hwy) ) + 
+  geom_point(mapping = aes(fill = drv), size = 4, # el relleno vendrá dado por drv y su tamaño
+             shape = 23, col = "white", stroke = 2) # busco la forma 23, los bordes serán blancos 
+```
+
+## Ejemplo del dataset de diamantes
+
+```{r}
+View(diamonds)
+```
+
+```{r}
+# Este gráfico nos ayuda ya que agrupa el corte de los diamantes y el geom bar nos dará un conteo de cuantos elementos caen el los diferentes grupos
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut)) # solo necesita las coordenadas x por que en la y van las frecuencias
+
+```
+
+```{r}
+demo_diamonds <- tribble(
+  ~cut,       ~freqs,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good", 12082,
+  "Premium",   13791,
+  "Ideal",     21551
+)
+
+ggplot(data = demo_diamonds) + 
+  geom_bar(mapping = aes(x=cut, y = freqs), # antes no utilizabamos el eje de la y porque representaba por defecto las freqs
+           stat = "identity") 
+
+# Indica la proporción de cada fila
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+
+# stat_summary resume para centrar la atención en ciertos datos
+ggplot(data = diamonds) + 
+  stat_summary( 
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max, 
+    fun.y = mean
+  )
+```
+
+```{r}
+#Colores y formas de los gráficos
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut)) #Pinta las líneas de contorno
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut)) # Pinta el relleno
+
+# Diagrama combinado donde cada una de los colores representa la claridad o luminosidad de los diamantes (barras apliladas)
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color))
+
+## position = "identity"
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + # me llevo la estética (aes) a variable global
+  geom_bar(alpha = 0.2, position = "identity") # el aplha da la transparencia
+
+# elimina el relleno y deja solo el borde
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity")
+
+```
+
+```{r}
+
+## position = "fill"
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + # sirve para comparar proporciones y todas las barras tienen altura 1
+  geom_bar(position = "fill")
+
+## position = "dodge" --- la comparación de proporciones es genial
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + # coloca las barras una al lado de la otra
+  geom_bar(position = "dodge")
+
+
+## Volvemos al scatterplot
+## position = "jitter"
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point( position = "jitter" ) # saldrán todas las observaciones
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_jitter()
+
+?position_stack
+?position_identity
+?position_fill
+?position_dodge
+?position_jitter
+```
+
+```{r}
+# Sistemas de Coordenadas
+
+#coord_flip() -> cambia los papeles de x e y (si queremos girar un gráfico)
+ggplot(data = mpg, mapping = aes(x=class, y = hwy)) + 
+  geom_boxplot()
+# boxplot: lo más importante es la caja y la raya representa la la mediana de los valores, el segundo cuartil o el dato que deja 50% arriba/abajo de los datos. y en la caja estará el primer y el tercer quantil, rango intercuantilico distancia que hay desde zona inferior de la caja hasta la superior y básicamente 1.5 veces ese valor es el máximo del bigote
+
+# Lo gira:
+ggplot(data = mpg, mapping = aes(x=class, y = hwy)) + 
+  geom_boxplot() + 
+  coord_flip()
+```
+
+```{r}
+#coord_quickmap() -> configura el aspect ratio para mapas
+
+usa <- map_data("usa") # Mapa de Estados Unidps
+
+ggplot(usa, aes(long, lat, group = group)) + 
+  geom_polygon(fill = "blue", color = "white") + 
+  coord_quickmap() # quickmap ajusta el aspect ratio para que no haya deformación
+
+italy <- map_data("italy")
+
+ggplot(italy, aes(long, lat, group = group)) + 
+  geom_polygon(fill = "blue", color = "white") + 
+  coord_quickmap()
+```
+
+```{r}
+#coord_polar()
+# hace uso de las coordenadas polares para revelar una conexión
+
+ggplot(data = diamonds) + 
+  geom_bar(
+    mapping = aes(x = cut, fill = cut),
+    show.legend = F,
+    width = 1
+  ) +
+  theme(aspect.ratio = 1) + # lo hace perfectamente cuadrado
+  labs(x = NULL, y = NULL) + # eliminas y/o desapareces las etiquetas
+  coord_polar()
+```
+# Gramática por capas GGPLOT
+
+```{r}
+#ggplot(data = <DATA_FRAME>) +
+#  <GEOM_FUNCTION>(
+#                  mapping = aes(<MAPPINGS>),
+#                  stat = <STAT>,
+#                  position = <POSITION>
+#                 ) + 
+#   <COORDINATE_FUNCTION>() + 
+#   <FACET_FUNCTION>()
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = clarity, fill = clarity, y = ..count..)) +
+  coord_polar() +
+  facet_wrap(~cut) +
+  labs(x=NULL, y = NULL, title = "Ejemplo final de ggplot con JB",
+       caption = "Dos variables cruzadas de diamonds",
+       subtitle="Aprender ggplot puede ser hasta divertido ;)")
+
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy )) + 
+  geom_point()
+```
+

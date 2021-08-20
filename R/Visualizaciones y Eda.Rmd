@@ -1,0 +1,448 @@
+---
+title: "EDA"
+author: "Jorge_Faieta_Dacovich - Neoland"
+date: "4/12/2020"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+# Análisis exploratorio de datos
+
+```{r}
+
+# * ¿Qué tipo de variaciones sufren las variables?
+# * ¿Qué tipo de covariación sufren las variables?
+
+# * variable: cantidad, factor o propiedad medible
+# * valor: estado de una variable al ser medida
+# * observación: conjunto de medidas tomadas en condiciones similares
+#                data point, conjunto de valores tomados para cada variable
+# * datos tabulares: conjunto de valores, asociado a cada variable y observación
+#                si los datos están limpios, cada valor tiene su propia celda
+#                cada variable tiene su columna, y cada observación su fila
+```
+
+# Variación
+
+```{r}
+## Variables categóricas: factor o vector de caracteres
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x=cut))
+
+diamonds %>%
+  count(cut) # Conteo de las frecuencias
+```
+
+```{r}
+## Variable contínua: conjunto infinito de valores ordenados (números, fechas)
+ggplot(data = diamonds) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.5) # usamos un histograma de frecuencias
+
+diamonds %>%
+  count(cut_width(carat, 0.5)) # nos ayuda a medir diferentes anchuras
+
+ggplot(diamonds, mapping = aes(x = "Kilates", y = carat)) + 
+  geom_boxplot()
+
+diamonds %>%
+  ggplot() + 
+  geom_boxplot(mapping = aes(x = cut, y = carat, color = cut))
+
+# Filtramos por aqueñños que son menores a 3
+diamonds_filter <- diamonds %>%
+  filter(carat<3)
+
+# Identificando patrones .. cuando el kilate es entero llega a su máximo valor y luego desciende.
+ggplot(data = diamonds_filter) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.01)
+
+# Observamos las variaciones con un polígono de frecuencias
+ggplot(data = diamonds_filter, 
+       mapping = aes(x = carat, color = cut))+
+  geom_freqpoly(binwidth = 0.01)
+```
+# Preguntas
+
+```{r}
+# * Cuales son los valores más comunes? Por qué?
+# * Cuales son los valores más raros? Por qué? Cumple con lo que esperábamos?
+# * Vemos algún patrón característico o inusual? Podemos explicarlos?
+
+# * Qué determina que los elementos de un cluster sean similares entre si?
+# * Qué determina que clusters separados sean diferentes entre si?
+# * Describir y explicar cada uno de los clusters.
+# * Por qué alguna observación puede ser clasificada en el cluster erróneo...
+```
+
+```{r}
+View(faithful) # Erupción (tiempo de la erupción en minutos) y waiting el tiempo hasta la siguiente erupción del Geyser 
+?faithful
+```
+
+```{r}
+ggplot(data = faithful, mapping = aes(x = eruptions)) + 
+  geom_histogram(binwidth = 0.2) # tenemos erupciones que duran pocos minutos (cortas) y largas y constantes
+```
+
+## Outliers
+
+```{r}
+# outliers
+
+# Para intentar analizar los outliers podemos hacer un cambio de coordenadas
+  ggplot(diamonds) + 
+    geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0,100)) #ylim nos ayuda definir el minimo y el maximo
+
+# Agrupamos en una variable los diamantes inusuales según el gráfico observado:
+unusual_diamonds <- diamonds %>%
+  filter(y<2 | y >30) %>% # filtramos valores y menor que 2 o y mayor a 30 (estableciendo límites)
+  select(price, x,y,z) %>% # selecciono solo las variables que quiero observar
+  arrange(y) # los ordeno por y
+View(unusual_diamonds)
+```
+
+
+```{r}
+#Eliminar toda la fila de valores atípicos
+good_diamonds <- diamonds %>%
+  filter(between(y, 2.5, 29.5)) # filtro por parámetros ( No suele recomendarse)
+
+#Reemplazar los valores atípicos con NAs
+good_diamonds <- diamonds %>%
+  mutate(y = ifelse(y<2 | y>30, NA, y)) 
+# Para valores "y" menores que 2 y mayores que 30 rellenamos con NA sino que tome el mismo valor "y"
+
+?ifelse
+
+# Al haber reemplazo valores atípicos con NA debemos removerlos de los gráficos
+ggplot(data = good_diamonds, 
+       mapping = aes(x = x, y = y)) + 
+  geom_point(na.rm = T)
+```
+
+# Ejercicios
+
+```{r}
+
+# 1) Explora la distribución de las variables x, y, z del dataset de diamonds. ¿Qué podemos inferir?
+
+# R) Existen valores atípicos:
+
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = x), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0,100))
+
+diamonds %>%
+  filter(x == 0)
+
+# R)  Existeb 8 filas con diamates con longitud 0 
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0,100))
+
+diamonds %>%
+  filter(y == 0 | y >30)
+
+# R) existen 9 filas de diamntes de 0 anchura y luego hay dos valores que son superiores a 30
+
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = z), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0,100))
+
+diamonds %>%
+  filter(z == 0 | z >30)
+
+# R) Muchos valores atípicos, algunos donde la profundidad es 0 o son mayores a 30
+
+# 2) # Ejercicio 2
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = price), binwidth = 10) +
+  coord_cartesian(xlim = c(1400,1600))
+
+# 3) ¿Cuantos diamantes hay de 0.99 kilates? ¿Y de exactamente 1 kilate?
+
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.01)+
+  coord_cartesian(xlim = c(0.95,1.05))
+
+diamonds %>%
+  filter(carat == 0.99 | carat == 1)
+
+#  Existen 1558 diamantes de 1 kilate
+diamonds %>%
+  count(carat == 1)
+# Existen 23 diamantes de 0.99
+diamonds %>%
+  count(carat == 0.99)
+
+# 4) Compara y contrasta el uso de las funciones coord_cartesian() frente xlim() y ylim() para hacer zoom en un histograma.
+
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.01)+
+  coord_cartesian(xlim = c(0.95,1.05))
+
+
+# --- ¿Qué ocurre si dejamos el parámetro binwidth sin configurar? se ve todo coom un bloque no puedo distinguir nada
+
+```
+
+## Covariación: describe el comportamiento entre variables
+
+# Categoría vs Contínua
+```{r}
+# Intentamos ver las variaciones con un polígono de frecuencia, sin embarho no es muy claro
+ggplot(data = diamonds, mapping = aes(x = price)) + 
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500)
+
+# Observamos con un diagrama de barras la variable categórica cut, hay muchos diamantes con un corte ideal
+ggplot(diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) + # ya no tomaría la y como count sino como densidad
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500)
+
+# nos ayuda a visualizar la distribución de los valores
+ggplot(data = diamonds, mapping = aes(x = cut, y = price)) + 
+  geom_boxplot()
+
+# Visualizamos con una caja de bigotes y parece que no influye mucho el corte en el precio
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+
+# Reordenamos aquella variable que no son factores ordenados
+ggplot(data = mpg) + 
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median),
+                             y = hwy))
+
+
+ggplot(data = mpg) + 
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median),
+                             y = hwy)) + 
+  coord_flip() # Si queremos girar el grafico
+```
+
+# Categoría vs Categoría
+
+```{r}
+
+ggplot(data = diamonds) + 
+  geom_count(mapping = aes(x = cut, y = color))
+
+# Me dará un conteo de las variables color y cut
+diamonds %>%
+  count(color, cut)
+
+diamonds %>%
+  count(color, cut) %>%
+  ggplot(mapping = aes(x = cut, y = color)) + 
+    geom_tile(mapping = aes(fill = n)) # pinta cuadrados de color (gradación de color) mientras mas oscura menos elementos caen y más clara encontramos más elementos
+```
+
+```{r}
+# Algunos paquetes para observar cuando tengo muchas mas variables
+#d3heatmap
+#heatmaply
+```
+
+## Categoria Continua vs continua
+
+```{r}
+# Contínua vs Contínua
+
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price), 
+             alpha = 0.01)
+
+
+install.packages("hexbin") # para mapear la información
+library(hexbin)
+
+ggplot(data = diamonds) + 
+  geom_bin2d(mapping = aes(x = carat, y = price)) # crea divisiones rectangulares
+
+ggplot(data = diamonds) + 
+  geom_hex(mapping = aes(x = carat, y = price)) # divisiones hexagonales
+
+
+#  es dificil deducir a través del boxplot si estamos trabajando con muchos diamantes
+diamonds %>%
+  filter(carat < 3) %>%
+  ggplot(mapping = aes(x = carat, y = price)) + 
+    geom_boxplot(mapping = aes(group = cut_width(carat, 0.1)), varwidth = T) # varwidth nos ayuda para que las cajas sean mas anchas
+
+diamonds %>%
+  filter(carat < 3) %>%
+  ggplot(mapping = aes(x = carat, y = price)) + 
+    geom_boxplot(mapping = aes(group = cut_number(carat, 10))) # cut number dividimos lo kilates en 10 categorías, la anchura aporta el volumen de información en la caja
+
+```
+
+# Relaciones y los patrones
+
+```{r}
+# * ¿Coincidencias?
+# * ¿Relaciones que implica el patrón? es lineal ? exponencial ? logarítmica?
+# * ¿Fuerza de la relación? es fuerte? hay una forma claramente definida
+# * ¿Otras variables afectadas? 
+# * ¿Subgrupos?
+
+ggplot(data = faithful) + 
+  geom_point(mapping = aes(x = eruptions, y = waiting)) # las erupciones están muy ligadas al tiempo de espera
+
+
+
+
+library(modelr)
+
+# modelo que sea capaz de predecir el precio a raíz de los kilates
+mod <- lm(log(price) ~log (carat), data = diamonds) # creo un modelo lineal
+mod
+
+diamonds_pred <- diamonds %>%
+  add_residuals(mod) %>% # funcion para añadir los residuos al data frame
+  mutate(res = exp(resid))
+
+View(diamonds_pred)
+
+# residuos elimina la fuerte relación de kilates y precios
+
+ggplot(data = diamonds_pred) + 
+  geom_point(mapping = aes(x = carat, y = resid))
+
+ggplot(data = diamonds_pred) +
+  geom_boxplot(mapping = aes(x = cut, y = resid))
+```
+# Ejercicios
+
+```{r}
+# 1) Es hora de aplicar todo lo que hemos aprendido para visualizar mejor los tiempos de salida para vuelos cancelados vs los no cancelados. Recuerda bien qué tipo de dato tenemos en cada caso. ¿Qué deduces acerca de los retrasos según la hora del día a la que está programada el vuelo de salida?
+
+view(flights)
+flights %>%
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min/60
+  ) %>%
+  ggplot(mapping = aes(sched_dep_time)) + 
+  geom_freqpoly(mapping = aes(y = ..density.., color = cancelled), binwidth = 1/4)
+
+# 3) Instala el paquete de ggstance y úsalo para crear un boxplot horizontal. Compara el resultado con usar el coord_flip() que hemos visto en clase.
+
+install.packages("ggstance")
+library(ggstance)
+
+ggplot(data = mpg,mapping = aes(x = hwy,
+                                y = reorder(class, hwy, FUN = median),
+                                fill = factor(class)
+                                )
+       ) + 
+  geom_boxploth() 
+
+# 4) Los boxplots nacen en una época donde los datasets eran mucho más pequeños y la palabra big data no era más que un concepto futurista. De ahí que los datos considerados con outliers tuvieran sentido que fueran representados con puntos dado que su existencia era más bien escasa o nula. Para solucionar este problema, existe el letter value plot del paquete lvplot. Instala dicho paquete y usa la geometría geom_lv() para mostrar la distribución de precio vs cut de los diamantes. ¿Qué observas y qué puedes interpretar a raíz de dicho gráfico?
+
+install.packages("lvplot")
+library(lvplot)
+
+ggplot(data = diamonds,
+       mapping = aes(x = cut, y = price)
+) + geom_lv() 
+
+ggplot(data = diamonds,
+       mapping = aes(x = cut, y = price)
+) + geom_boxplot()
+
+# 5) Compara el uso de la geometría geom_violin() con un facet de geom_histogram() y contra un geom_freqpoly() coloreado. Investiga cuales son los pros y los contras de cada uno de los tipos de representación.
+
+ggplot(diamonds, mapping = aes(x = cut, y = price)) + 
+  geom_violin()
+
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = price), binwidth = 100)+ 
+  facet_wrap(~cut, nrow = 3)
+
+ggplot(diamonds) + 
+  geom_freqpoly(mapping = aes(x = price, color = cut), binwidth = 100)
+
+# 6) Si tenemos datasets pequeños, a veces es útil usar la opción que ya conocemos de geom_jitter() para ver la relación entre una variable contínua y una variable categórica. El paquete de R ggbeeswarm tiene un par de métodos similares a geom_jitter() que te pueden ayudar a tal efecto. Listalos y haz un gráfico con cada uno de ellos para ver qué descripción de los datos podemos extraer de cada uno. ¿A qué gráfico de los que ya has visto durante esta práctica se parece?
+
+install.packages("ggbeeswarm")
+library(ggbeeswarm)
+
+ggplot(diamonds,aes(cut, price)) + 
+  geom_quasirandom()
+
+# 7) Los mapas de calor que hemos visto tienen un claro problema de elección de los colores. 
+
+# ¿Cómo podríamos reescalar el campo count dataset de diamantes cuando cruzamos color y cut para observar mejor la distribución de dicho cruce?
+# ¿Por qué resulta mejor usar la estética aes(x = color, y = cut) en lugar de aes(x=cut, y = color)?
+# Una opción es reducir a una transformación logarítimica: 
+diamonds %>%
+  count(color, cut) %>%
+  ggplot(mapping = aes(x = cut, y = color)) + 
+  geom_tile(mapping = aes(fill = log(n)))
+
+diamonds %>%
+  count(color, cut) %>%
+  ggplot(mapping = aes(x = color, y = cut)) + 
+  geom_tile(mapping = aes(fill = log(n)))
+
+# 8) Utiliza la geom_tile() junto con dplyr para explorar si el promedio del retraso de los vuelos varía con respecto al destino y mes del año. 
+# ¿Qué hace que este gráfico sea dificil de leer o de interpretar?
+# ¿Cómo puedes mejorar la visualización?
+flights %>%
+  count(month, dest) %>%
+  ggplot(mapping = aes(x = dest, y = month)) + 
+  geom_tile(mapping = aes(fill = n))
+
+# 9) En lugar de hacer un resumen de la distribución condicional de dos variables numéricas con un boxplot, se puede usar un polígono de frecuencias. 
+
+# ¿Qué hay que tener en cuenta cuando usas cut_width() o cuando usas cut_number()?
+# ¿Cómo influye este hecho en la visualización 2D de carat y price
+# Da la mejor visualización posible de carat dividido por price.
+ggplot(diamonds, aes(price, colour = cut_width(carat, 1.0))) +
+  geom_freqpoly()
+
+ggplot(diamonds, aes(price, colour = cut_number(carat, 5))) +
+  geom_freqpoly()
+
+ggplot(diamonds, aes(carat, colour = cut_width(price, 5000))) +
+  geom_freqpoly()
+
+# 10) Compara la distribución del precio de los diamantes grandes vs diamantes pequeños. Elige el concepto de grande y pequeño que consideres. Comenta el resultado.
+diamonds %>%
+  filter(between(x,2,20)) %>%
+  filter(between(y,2,20)) %>%
+  filter(between(z,2,20)) %>%
+  ggplot(aes(price, x*y*z)) + 
+   geom_bin2d()
+
+# 11) Combina diferentes técnicas de ggplot para visulaizar la distribución combinada de cut, carat y precio.
+diamonds %>%
+  ggplot(aes(price, colour = cut)) + 
+  geom_freqpoly() + 
+  facet_wrap(~cut_number(carat, 5), nrow = 2)
+
+diamonds %>%
+  ggplot(aes(price)) + 
+  geom_freqpoly() + 
+  facet_wrap(cut~cut_number(carat, 5))
+
+# 12) Los plots en 2D pueden revelar outliers que no se ven en plots de una sola dimensión. Por ejemplo, algunos puntos del plot dado por
+
+ggplot(data = diamonds) + 
+
+   geom_point(mapping = aes(x = x, y = y)) + 
+
+   coord_cartesian(xlim = c(4,12), ylim = c(4,12))
+
+# hacen destacar muchísimo los outliers combinando x con y, a pesar de que por separado parecen valores normales. 
+
+```
+

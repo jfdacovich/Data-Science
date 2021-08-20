@@ -1,0 +1,202 @@
+---
+title: "Manejo de Fechas R"
+author: "Jorge_Faieta_Dacovich - Neoland"
+date: "7/12/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(nycflights13)
+```
+
+```{r}
+# diferentes formatos:
+#<date>
+#<time>
+#<dttm>
+#library(hms)
+```
+
+```{r}
+today()
+now()
+```
+
+# creamos date times a partir de strings
+
+```{r}
+ymd("2015-06-13")
+mdy("January 30th, 2018")
+dmy("8-Jun-2018")
+ymd(20180608)
+
+ymd_hms("2018-06-08 19:35:28")
+mdy_hm("06/30/2017 05:30", tz = "GMT") # tz = gmt es la zona horaria estándar de europa
+```
+
+# Creando una Función para cambiar el formato de fecha
+
+```{r}
+flights %>% 
+  select(year, month, day, hour, minute) %>%
+  mutate(departure = make_datetime(year, month, day, hour, minute)) # Fabrico las fechas
+
+make_date_time_100 <- function(year, month, day, time){
+  make_datetime(year, month, day, time %/%100, time %% 100)}
+  
+flights_dt <- flights %>%
+  filter(!is.na(dep_time), !is.na(arr_time)) %>%
+  mutate(
+    dep_time = make_date_time_100(year, month, day, dep_time),
+    arr_time = make_date_time_100(year, month, day, arr_time),
+    sched_dep_time = make_date_time_100(year, month, day, sched_dep_time),
+    sched_arr_time = make_date_time_100(year, month, day, sched_arr_time)
+  ) %>%
+  select(origin, dest, ends_with("delay"), ends_with("time"))
+
+flights_dt %>% View()
+
+flights_dt %>%
+  ggplot(aes(dep_time)) + 
+  geom_freqpoly(binwidth = 24*60*60) # 1 día
+
+flights_dt %>%
+  filter(dep_time < ymd(20130102)) %>%
+  ggplot(aes(dep_time)) +
+  geom_freqpoly(binwidth = 600) #600 s = 10 min
+  
+```
+
+```{r}
+as_datetime(today())
+as_date(now())
+
+#EPOCH -> 1970-01-01
+as_datetime(60*60*2018) # Cada unidad representa un segundo
+as_date(365*10 + 2) 
+
+```
+
+# Obteniendo componentes de fechas:
+
+```{r}
+nowwww <- now()
+nowwww
+
+year(nowwww)
+month(nowwww, label = TRUE, abbr = FALSE) # obtenemos los niveles como factor y devuelve el nombre completo
+mday(nowwww)
+
+yday(nowwww)
+wday(nowwww, label = TRUE, abbr = FALSE) # obtenemos los niveles como factor y devuelve el nombre completo
+
+hour(nowwww)
+minute(nowwww)
+second(nowwww)
+```
+
+
+```{r}
+# Veo que día de la semana salieron mas vuelos, hay mas vuelos los días de semana que los findes
+flights_dt %>%
+  mutate(wday = wday(dep_time, label = TRUE, abbr = FALSE)) %>%
+  ggplot(aes(x = wday)) +
+  geom_bar()
+
+# Veo el promedio del retraso de un avión por minuto dentro de una hora
+flights_dt %>%
+  mutate(minute = minute(dep_time)) %>%
+  group_by(minute) %>%
+  summarise(
+    avg_delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  ) %>%
+  ggplot(aes(minute, avg_delay)) + 
+  geom_line()
+
+# vemos si la hora programada del vuelo sigue un patron
+flights_dt %>%
+  mutate(minute = minute(sched_dep_time)) %>%
+  group_by(minute) %>%
+  summarise(
+    avg_delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  ) %>%
+  ggplot(aes(minute, avg_delay))+
+  geom_line()
+
+
+# La gran mayoría de vuelos están preparados para hora s en puntos o horas medias
+flights_dt %>%
+  mutate(minute = minute(sched_dep_time)) %>%
+  group_by(minute) %>%
+  summarise(
+    avg_delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  ) %>%
+  ggplot(aes(minute, n))+
+  geom_line()
+```
+
+# Operaciones con fechas
+
+```{r}
+#floor_date() redondeo hacia abajo
+#round_date()
+#ceiling_date() redondeo hacia arriba
+
+```
+
+```{r}
+# numero de vuelos desde new York cada semana
+
+flights_dt %>%
+  count(week = floor_date(dep_time, "week")) %>%
+  ggplot(aes(week, n)) + 
+  geom_line()
+```
+
+# Cambiando
+
+```{r}
+d <- now()
+d  
+year(d) <- 2030
+month(d) <- 02
+d
+hour(d) <- hour(d) + 3
+d
+
+update(d, year = 2020, month = 10, mday = 7, hour = 4)
+
+dmy("01-02-2018") %>%
+  update(mday = 30)
+
+dmy("01-02-2018") %>%
+  update(hour = 54321)
+
+# Distribucion de vuelos en el transcurso de días del año
+
+flights_dt %>%
+  mutate(dep_hour = update(dep_time, yday = 1)) %>%
+  ggplot(aes(dep_hour)) + 
+  geom_freqpoly(binwidth = 300)
+
+```
+
+
+```{r}
+data <- transform(data, ID_FCH_DATOS = as.Date(as.character(ID_FCH_DATOS), "%d.%m.%Y"))
+
+view(data)
+
+
+data %>%
+  mutate(ID_FCH_DATOS_NEW = as.POSIXlt(format = "%d.%m.%Y")
+         
+         
+as.POSIXct(as.character(data[,1]), format="%d%m%Y")
+```
+

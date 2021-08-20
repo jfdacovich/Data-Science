@@ -1,0 +1,168 @@
+---
+title: "Data Wrangling Tidyverse"
+author: "Jorge_Faieta_Dacovich - Neoland"
+date: "5/12/2020"
+output: html_document
+---
+
+# Tibble : nos da la versión mejorada de los dataframes
+
+```{r}
+vignette("tibble") # ayuda
+library(tidyverse)
+```
+
+# Creación de un tibble
+
+```{r}
+
+View(iris)
+class(iris) # es un data.frame
+
+iris_tibble <- as_tibble(iris) # transformación
+class(iris_tibble) # es un tibble y es un tibble data frame
+
+t <- tibble(
+  x = 1:10,
+  y = pi,
+  z = y * x ^ 2
+)
+
+
+View(t)
+t[2,3]
+
+t2 <- tibble(
+  `:)` =  "smilie",
+  ` ` = "space",
+  `1988` = "number"
+)
+
+t2$`:)`
+
+
+# Generamos las filas de las variables
+tribble(
+  ~x, ~y, ~z,
+#|---|--|------|
+  "a", 4,  3.14,
+  "b", 8,  6.28,
+  "c", 9, -1.25
+)
+
+
+
+tibble(
+  a = lubridate::now() + runif(1e3)*24*60*60, #1 elevado a 3 que sería 1000, son numeros aleatorios * 24 horas*60 min*60sgs
+  b = 1:1e3, # numeros desde 1 hasta 1000
+  c = lubridate::today() + runif(1e3)*30, # dia aleatorio entre hoy y el mes que viene
+  d = runif(1e3), # random uniform numeros aleatorios entre 1 y 0
+  e = sample(letters, 1e3, replace = T) # muestreo aleatorio de letras, 1000 letras con reemplazo
+)
+
+lubridate::today()
+
+```
+
+# Tratando Data set Flights
+
+```{r}
+# Modificando la forma en la que se imprime
+nycflights13::flights %>%
+  print(n = 12, width = Inf) # n es el numero de filas, y todas las columnas (anchura infinita)
+  
+
+# Opciones globales del sistema: 
+options(tibble.print_max = 12, tibble.print_min = 12)
+options(dplyr.print_min = Inf) # nos muestre todas las filas de información
+options(tibble.width = Inf) # para ver todas y cada una de las columnas
+  
+nycflights13::flights %>% #....
+  View()
+  
+```
+
+# Sub conjuntos y acceso a tibbles
+```{r}
+
+# [['nombre_variable']]
+# [[posicion_variable]]
+# $nombre_variable
+
+df <- tibble(
+  x = rnorm(10), # random normal
+  y = runif(10) # random uniforme
+)
+
+df$x # me devuelve un vector de las x
+df$y # me devuelve la segunda columna
+
+df[["x"]]
+df[["y"]]
+
+df[[1]] # me devuelve la primera columna
+df[[2]] # me devuleve la segunda columna
+
+df %>% .$x # para acceder por pip solo añado un punto antes del $
+df %>% .$y
+
+df %>% .[["x"]]
+df %>% .[[1]] # primera columna
+
+class(as.data.frame(df))
+
+#[[]]
+dplyr::filter()
+dplyr::select()
+#[[]] sobre un data.frame, puede devolver un data.frame o un vector
+#[[]] sobre una tibble, siempre devuelve una tibble
+
+```
+
+# Ejercicios
+```{r}
+
+# 1) ¿Tibble o no tibble? ¿Cómo sabes si un objeto es una tibble o no?
+
+mtcars # es un datafram
+flights # es un tibble indica la clase de las variables y provee de maás informacion
+
+# 2 )Compara y contrasta las siguientes operaciones en el data frame y su equivalente en tibble. 
+
+df <- data.frame(abc = 1, xyz = "a")
+df$x # Usar el $ en un data.frame completa parcialmente el nombre de la columna
+df[,"xyz"]
+df[,c("abc","xyz")]
+
+# 3) Si tenemos el nombre de una variable almacenada en un objeto tipo string (por ejemplo myvar <- "mpg"), ¿cómo podemos extraer la variable referenciada de una tibble? ¿Y en un data frame?
+
+La forma más fácil es con el corchete doble df[[var]]
+
+# 4) Toma la siguiente tibble formada por variables con nombres no sintácticos.
+
+df <- tibble(
+
+ `1` = 1:12,
+ `2` = `1` * 2 + `1`*runif(length(`1`))
+)
+
+
+# Extrae el valor de la variable `1` 
+df[[1]]
+#Haz un scatterplot de la variable `1`contra la variable `2`
+ggplot(data = df, mapping = aes(x= `1`, y = `2`)) +
+         geom_point()
+#Crea una nueva columna llamada `3`que sea el cociente de `2`entre `1`.
+
+df <- df %>%
+  mutate( `3` = `2` / `1`) 
+
+#Renombra las columnas para que se llamen x, y, z respectivamente.
+
+df %>%
+  rename(x = `1`,
+         y = `2`,
+         z = `3`)
+```
+
+# 
