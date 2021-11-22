@@ -1,0 +1,759 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; --title-bar-height:20px; }
+.mac-os-11 { --title-bar-height:28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-require-zoom-fix foreignobject { font-size: var(--mermaid-font-zoom); }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex:2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+/* open-sans-regular - latin-ext_latin */
+  /* open-sans-italic - latin-ext_latin */
+    /* open-sans-700 - latin-ext_latin */
+    /* open-sans-700italic - latin-ext_latin */
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+
+@media only screen and (min-width: 1400px) {
+	#write {
+		max-width: 1024px;
+	}
+}
+
+@media only screen and (min-width: 1800px) {
+	#write {
+		max-width: 1200px;
+	}
+}
+
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+/*@media print {
+    .typora-export h1,
+    .typora-export h2 {
+        border-bottom: none;
+        padding-bottom: initial;
+    }
+
+    .typora-export h1::after,
+    .typora-export h2::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-top: -96px;
+        border-top: 1px solid #eee;
+    }
+}*/
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table th:first-child,
+table td:first-child {
+    margin-top: 0;
+}
+table th:last-child,
+table td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    table,
+    pre {
+        page-break-inside: avoid;
+    }
+    pre {
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+/*.html-for-mac {
+    --item-hover-bg-color: #E6F0FE;
+}*/
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+    opacity: 0.4;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+.menu-item-container a.menu-style-btn {
+    background-color: #f5f8fa;
+    background-image: linear-gradient( 180deg , hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0)); 
+}
+
+
+
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+ :root {--mermaid-font-zoom:1.25em ;} 
+</style><title>AWS Certified Data Analytics Specialty 2021</title>
+</head>
+<body class='typora-export os-windows'><div class='typora-export-content'>
+<div id='write'  class=''><h1 id='aws-certified-data-analytics-specialty-2021'><span>AWS Certified Data Analytics Specialty 2021</span></h1><div class='md-toc' mdtype='toc'><p class="md-toc-content" role="list"><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n0"><a class="md-toc-inner" href="#aws-certified-data-analytics-specialty-2021">AWS Certified Data Analytics Specialty 2021</a></span><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n57"><a class="md-toc-inner" href="#1-collection">1. Collection</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n58"><a class="md-toc-inner" href="#11-kinesis">1.1 Kinesis</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n155"><a class="md-toc-inner" href="#aws-kinesis-overview">AWS Kinesis Overview</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n191"><a class="md-toc-inner" href="#kinesis-producer">Kinesis Producer</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n272"><a class="md-toc-inner" href="#111-kinesis-data-streams">1.1.1 Kinesis Data Streams</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n567"><a class="md-toc-inner" href="#kinesis-data-streams-overview">Kinesis Data Streams Overview</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n276"><a class="md-toc-inner" href="#kinesis-data-streams-limits-to-know">Kinesis Data Streams Limits to know</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n275"><a class="md-toc-inner" href="#112-kinesis-firehose">1.1.2 Kinesis Firehose</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n194"><a class="md-toc-inner" href="#kinesis-firehose-overview">Kinesis Firehose Overview</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n238"><a class="md-toc-inner" href="#1121-how-it-works">1.1.2.1 How it works?</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n100"><a class="md-toc-inner" href="#1122-benefits">1.1.2.2 Benefits</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n141"><a class="md-toc-inner" href="#1123-spanish-highlights">1.1.2.3 Spanish highlights</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n506"><a class="md-toc-inner" href="#113-kinesis-data-stream-vs-kinesis-firehose">1.1.3 Kinesis Data Stream vs Kinesis Firehose</a></span><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n482"><a class="md-toc-inner" href="#6-security">6. Security</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n484"><a class="md-toc-inner" href="#61-kinesis-security">6.1 Kinesis Security</a></span></p></div><ul><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><h2 id='collection'><span>Collection</span></h2><ul><li><span>Amazon Kinesis</span></li></ul><ul><li><span>AWS Iot Core</span></li><li><span>AWS Snowball</span></li><li><span>Amazon SQS</span></li><li><span>Amazon DMS</span></li><li><span>AWS Direct Connect</span></li></ul></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><h2 id='storage'><span>Storage</span></h2><ul><li><span>S3 + Glacier</span></li></ul><ul><li><span>Dynamo DB</span></li><li><span>ElastiCache</span></li></ul></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><h2 id='processing'><span>Processing</span></h2><ul><li><span>AWS Lambda</span></li></ul><ul><li><span>Amazon ML</span></li><li><span>AWS Glue</span></li><li><span>Amazon SageMaker</span></li><li><span>Amazon EMR</span></li><li><span>AWS Data Pipeline</span></li></ul></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><h2 id='analysis'><span>Analysis</span></h2><ul><li><span>Elasticsearch</span></li></ul><ul><li><span>Amazon Athena</span></li><li><span>Amazon Redshift</span></li></ul></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><h2 id='visualization'><span>Visualization</span></h2><ul><li><span>Amazon QuickSight</span></li></ul></li><li class='md-task-list-item task-list-item task-list-not-done' ><input type='checkbox' /><h2 id='security'><span>Security</span></h2><ul><li><span>Amazon KMS</span></li></ul><ul><li><span>AWS CloudHSM</span></li></ul></li></ul><p><img src="C:\Users\Usuario\AppData\Roaming\Typora\typora-user-images\image-20211120130046845.png" referrerpolicy="no-referrer" alt="image-20211120130046845"></p><h1 id='1-collection'><span>1. Collection</span></h1><p><strong><span>Collection Introduction</span></strong></p><ul><li><strong><span>Real Time Immediate actions</span></strong>
+<span>Kinesis Data Streams (KDS)</span>
+<span>Simple Queue Service (SQS)</span>
+<span>Internet of Things (IoT)</span></li><li><strong><span>Near real time Reactive actions</span></strong>
+<span>Kinesis Data Firehose (KDF)</span>
+<span>Database Migration Service (DMS)</span></li><li><strong><span>Batch Historical Analysis</span></strong>
+<span>Snowball</span>
+<span>Data Pipeline</span></li></ul><h2 id='11-kinesis'><span>1.1 Kinesis</span></h2><p><em><span>Amazon Agent write directly to Amazon Kinesis Streams and Amazon Kinesis Data Firehose</span></em></p><h2 id='aws-kinesis-overview'><span>AWS Kinesis Overview</span></h2><ul><li><strong><span>Kinesis</span></strong><span> is a managed alternative to Apache Kafka</span></li><li><span>Great for application logs, metrics, IoT, clickstreams</span></li><li><span>Great for “real time” big data</span></li><li><span>Great for streaming processing frameworks (Spark, NiFi , etc)</span></li><li><span>Data is automatically replicated synchronously to 3 AZ</span></li><li><strong><span>Kinesis Streams</span></strong><span>: low latency streaming ingest at scale</span></li><li><strong><span>Kinesis Analytics:</span></strong><span> perform real time analytics on streams using SQL</span></li><li><strong><span>Kinesis Firehose:</span></strong><span> load streams into S3, Redshift, ElasticSearch &amp; Splunk</span></li><li><span>Streams are divided in ordered Shards / Partitions</span></li><li><span>Data retention is 24 hours by default, can go up to 365 days</span></li></ul><h2 id='kinesis-producer'><img src="C:\Users\Usuario\AppData\Roaming\Typora\typora-user-images\image-20211122121658889.png" referrerpolicy="no-referrer" alt="image-20211122121658889"><span>Kinesis Producer</span></h2><p><img src="C:\Users\Usuario\AppData\Roaming\Typora\typora-user-images\image-20211122130230157.png" referrerpolicy="no-referrer" alt="image-20211122130230157"></p><ul><li><p><strong><span>Kinesis SDK</span></strong><span>: </span><strong><span>APIs that are used are</span></strong><span> PutRecord (one) and PutRecords (many</span>
+<span>records) </span><strong><span>|</span></strong><span> </span><strong><span>PutRecords</span></strong><span> uses batching and increases throughput =&gt; less HTTP requests</span></p><ul><li><span>Use Case: Low throughput, highet latency, simple API, AWS lambda</span></li></ul></li><li><p><strong><span>Kinesis Producer Library (KPL)</span></strong><span>: Easy to use and highly configurable C++ / Java library </span><strong><span>|</span></strong><span>Used for building high performance,  long running producers </span><strong><span>|</span></strong><span> Synchronous or Asynchronous API (better performance for </span><strong><span>async</span></strong><span>)</span></p></li><li><p><strong><span>Kinesis Agent</span></strong><span>: Monitor Log files and sends them to Kinesis Data Streams </span><strong><span>|</span></strong><span>Java based agent, built on top of KPL </span><strong><span>|</span></strong><span>Install in Linux based server environments</span></p></li><li><p><span>3rd party libraries: Spark, Log4J Appenders, Flume, Kafka Connect, Nifi</span></p></li></ul><h3 id='111-kinesis-data-streams'><span>1.1.1 Kinesis Data Streams</span></h3><h3 id='kinesis-data-streams-overview'><span>Kinesis Data Streams Overview</span></h3><ul><li><span>Streams are divided in ordered Shards / Partitions</span></li><li><span>Data retention is 24 hours by default, can go up to 365 days</span></li><li><span>Ability to reprocess / replay data</span></li><li><span>Multiple applications can consume the same stream</span></li><li><span>Real time processing with scale of throughput</span></li><li><span>Once data is inserted in Kinesis, it can’t be deleted (immutability) </span><strong><span>Is not a database</span></strong></li></ul><p><strong><span>One stream is made of many different shards, Billing is per shard provisioned, can have as many shards as</span>
+<span>you want</span></strong></p><p><strong><span>Kinesis Streams Records</span></strong></p><ul><li><p><strong><em><span>Data Blob</span></em><span>:</span></strong></p><ul><li><span>data being sent, serialized as bytes . Up to 1 MB. Can represent anything</span></li></ul></li><li><p><strong><em><span>Record Key</span></em><span>:</span></strong></p><ul><li><span>sent alongside a record, helps to group</span>
+<span>records in Shards. Same key = Same shard.</span></li><li><span>Use a highly distributed key to avoid the</span>
+<span>“hot partition” problem</span></li></ul></li><li><p><strong><em><span>Sequence number</span></em><span>:</span></strong><span> Unique identifier for each records put in shards. for each records put in shards. </span><strong><span>Added</span>
+<span>by Kinesis after ingestion</span></strong></p></li></ul><h3 id='kinesis-data-streams-limits-to-know'><span>Kinesis Data Streams Limits to know</span></h3><ul><li><p><strong><span>Producer:</span></strong></p><ul><li><span>1MB/s or 1000 messages/s at write PER SHARD</span></li><li><span>&quot;ProvisionedThroughputException” otherwise</span></li></ul></li><li><p><strong><span>Consumer Classic:</span></strong></p><ul><li><span>2MB/s at read PER SHARD across all consumers</span></li><li><span>5 API calls per second PER SHARD across all consumers</span></li></ul></li><li><p><strong><span>Consumer Enhanced Fan Out:</span></strong></p><ul><li><span>2MB/s at read PER SHARD, PER ENHANCED CONSUMER</span></li><li><span>No API calls needed (</span><strong><span>push model</span></strong><span>)</span></li></ul></li><li><p><strong><span>Data Retention:</span></strong></p><ul><li><span>24 hours data retention by default</span></li><li><span>Can be extended to 365 days</span></li></ul></li></ul><h3 id='112-kinesis-firehose'><span>1.1.2 Kinesis Firehose</span></h3><h3 id='kinesis-firehose-overview'><span>Kinesis Firehose Overview</span></h3><ul><li><span>Fully Managed Service, no administration</span></li><li><span>Near Real Time (60 seconds latency minimum for non full)</span></li><li><span>Load data into Redshift / Amazon S3 / ElasticSearch / Splunk</span></li><li><span>Automatic scaling</span></li><li><span>Supports many data formats</span></li><li><span>Data Conversions from JSON to Parquet / ORC </span><strong><span>(only for S3)</span></strong></li><li><span>Data Transformation through AWS Lambda (ex: CSV =&gt; JSON)</span></li><li><span>Supports compression when target is Amazon S3 (GZIP, ZIP, and SNAPPY)</span></li><li><span>Only GZIP is the data is further loaded into Redshift</span></li><li><span>Pay for the amount of data going through Firehose</span></li><li><span>Spark / KCL (</span><strong><span>Kinesis Client Library</span></strong><span>) do not read from KDF.</span></li></ul><p><img src="C:\Users\Usuario\AppData\Roaming\Typora\typora-user-images\image-20211122131031295.png" referrerpolicy="no-referrer" alt="image-20211122131031295"></p><p><img src="C:\Users\Usuario\AppData\Roaming\Typora\typora-user-images\image-20211122122241999.png" referrerpolicy="no-referrer" alt="image-20211122122241999"></p><ul><li><p><span>Firehose accumulates records in a buffer</span>
+<strong><span>The buffer is flushed based on time and size rules</span></strong></p><ul><li><span>Buffer Size (ex: 32MB): if that buffer size is reached, it’s flushed</span></li><li><span>Buffer Time (ex: 2 minutes): if that time is reached, it’s flushed</span></li><li><span>Firehose can automatically increase the buffer size to increase</span></li></ul></li></ul><h4 id='1121-how-it-works'><span>1.1.2.1 How it works?</span></h4><ol><li><span>First, you capture and submit streaming data to Amazon Kinesis Data Firehose from your applications and devices.</span></li><li><span>Amazon Kinesis Data Firehose transforms and loads streaming data continuously into Amazon S3, Amazon Redshift, and Amazon Elasticsearch Service domains.</span></li><li><span>Finally, you can analyze streaming data using your favorite business intelligence tools. </span></li></ol><h4 id='1122-benefits'><span>1.1.2.2 Benefits</span></h4><p><em><span>Amazon Kinesis Data Firehose is the easiest way to load streaming data into AWS. It can capture and automatically load streaming data into Amazon S3 and Amazon Redshift, which enables near-real-time analytics with existing business intelligence tools and dashboards. It is a fully managed service that automatically scales to match the throughput of your data and requires no ongoing administration. It can also batch, compress, and encrypt the data before loading it, which minimizes the amount of storage used at the destination and increases security. You can easily create a Firehose delivery stream from the AWS Management Console, configure it with a few clicks, and start sending data to the stream from hundreds of thousands of data sources to be loaded continuously to AWS.</span>
+<span>With Amazon Kinesis Data Firehose, you pay only for the amount of data you transmit through the service. There is no minimum fee or setup cost.</span></em></p><ul><li><p><span>No ongoing administration</span></p><p><strong><span>Amazon Kinesis Data Firehose is a fully managed service that automatically provisions, manages, and scales compute, memory, and network resources required to load your streaming data.</span></strong><span> </span></p></li><li><p><span>Near-real-time latency</span></p><p><span>Captures and loads data in near-real time. It loads new data into Amazon S3 and Amazon Redshift within 60 seconds after the data is sent to the service. </span></p></li><li><p><span>Easy to use</span></p><p><span>You can create a firehose delivery stream, select the destinations, and start sending real-time data from hundres of data sources</span></p><p><strong><span>The service takes care of stream management, including all the scaling, sharding, and monitoring needed to continuously load the data to destinations at the intervals you specify.</span></strong></p></li><li><p><span>Seamless Elasticity</span></p><p><span>The service takes care of stream management, including all the scaling, sharding, and monitoring needed to continuously load the data to destinations at the intervals you specify.</span></p></li></ul><p><img src="C:\Users\Usuario\AppData\Roaming\Typora\typora-user-images\image-20211122120854760.png" referrerpolicy="no-referrer" alt="image-20211122120854760"></p><h4 id='1123-spanish-highlights'><span>1.1.2.3 Spanish highlights</span></h4><ul><li><span>Permite ingesta de datos de gran volumen.</span></li><li><span>Puede convertir facilmente datos en los formatos requeridos por sus almacenes de datos destino, como Apache parquet, Apache ORC</span></li><li><span>Puede particionar dinámicamente sus datos en streaming mediante claves bien definidas como &quot;customer_id&quot; o &quot;transaction_id&quot;. Kinesis Data Firehose agrupa los datos según estas claves y realiza la entrega en prefijos S3 con una clave única, lo que le facilita la ejecución de análisis de alto rendimiento y rentables en S3 mediante Athena, EMR y Redshift Spectrum.</span></li></ul><h3 id='113-kinesis-data-stream-vs-kinesis-firehose'><span>1.1.3 Kinesis Data Stream vs Kinesis Firehose</span></h3><p><strong><span>Streams</span></strong></p><ul><li><span>Going to write custom code (producer / consumer)</span></li><li><span>Real time (~200 ms latency for classic, ~70 ms latency for enhanced fan out)</span></li><li><span>Must manage scaling (shard splitting / merging)</span></li><li><span>Data Storage for 1 to 365 days, replay capability, multi consumers</span></li><li><span>Use with Lambda to insert data in real time to ElasticSearch</span></li></ul><p><strong><span>Firehose</span></strong></p><ul><li><span>Fully managed, send to S3, Splunk, Redshift, ElasticSearch</span></li><li><span>Serverless data transformations with Lambda</span></li><li><span>Near real time (lowest buffer time is 1 minute)</span></li><li><span>Automated Scaling</span></li><li><span>No data storage</span></li></ul><h1 id='6-security'><span>6. Security</span></h1><h2 id='61-kinesis-security'><span>6.1 Kinesis Security</span></h2><ul><li><span>Control access / authorization using IAM policies</span></li><li><span>Encryption in flight using HTTPS endpoints</span></li><li><span>Encryption at rest using KMS</span></li><li><span>Client side encryption must be manually implemented (harder)</span></li><li><span>VPC Endpoints available for Kinesis to access within VPC</span></li></ul></div></div>
+</body>
+</html>
